@@ -12,8 +12,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
       - run: sudo apt-get install -y cmake build-essential libopenblas-dev liblapack-dev
       - run: pip install fastapi uvicorn pydantic-settings face-recognition faiss-cpu opencv-python-headless Pillow numpy python-multipart pytest httpx
+      - name: Lint
+        run: pip install ruff && ruff check .
       - run: pytest ../tests/cv-service/ -v
 
   test-backend:
@@ -26,7 +34,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
       - run: pip install -r requirements.txt pytest pytest-asyncio
+      - name: Lint
+        run: pip install ruff && ruff check .
       - run: pytest ../tests/backend/ -v
 
   test-frontend:
